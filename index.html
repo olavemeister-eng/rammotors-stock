@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAM Motors · Stock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --neg:#0a0a0a; --neg2:#161616; --neg3:#1e1e1e; --rojo:#e2202a; --rojo2:#ff3b47; --dorado:#e6b25a;
+    --gris:#8f8f8f; --linea:#2a2a2a; --blanco:#f5f5f5;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--neg);color:var(--blanco);font-family:"Rajdhani","Segoe UI",Arial,sans-serif;font-size:15px;}
+  h1,h2,h3,.titulo-deportivo{font-family:"Oswald","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.5px;}
+
+  header{
+    position:relative;padding:26px 20px 18px;border-bottom:2px solid var(--rojo);
+    background:linear-gradient(135deg,#141414 0%,#0a0a0a 55%,#0a0a0a 100%);
+    overflow:hidden;
+  }
+  header::before{
+    content:"";position:absolute;top:0;right:-40px;width:220px;height:100%;
+    background:linear-gradient(100deg,transparent 40%,rgba(226,32,42,.16) 40%,rgba(226,32,42,.16) 55%,transparent 55%);
+    pointer-events:none;
+  }
+  header h1{
+    margin:0;font-size:26px;font-weight:700;font-style:italic;position:relative;
+    color:var(--blanco);
+  }
+  header h1 span{color:var(--rojo2);}
+  header .sub{color:var(--gris);font-size:12px;margin-top:4px;position:relative;letter-spacing:.3px;}
+  .controles{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;}
+  .controles input, .controles select{
+    background:var(--neg2);border:1px solid var(--linea);color:var(--blanco);
+    padding:9px 10px;border-radius:3px;font-size:13px;font-family:"Rajdhani",sans-serif;font-weight:600;
+  }
+  .controles input:focus, .controles select:focus{outline:none;border-color:var(--rojo);}
+  #buscar{flex:1;min-width:200px;}
+  .contador{color:var(--gris);font-size:12px;margin-top:10px;position:relative;text-transform:uppercase;letter-spacing:.5px;}
+  #lista{padding:14px 16px 60px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  @media (max-width:420px){ #lista{gap:8px;} }
+  .card{
+    background:var(--neg2);border:1px solid var(--linea);border-top:3px solid var(--rojo);
+    padding:0 0 10px;cursor:pointer;overflow:hidden;border-radius:4px;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .card:hover{border-color:var(--rojo2);transform:translateY(-3px);box-shadow:0 8px 18px rgba(226,32,42,.18);}
+  .card .card-foto-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;}
+  .card .card-foto-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .card .badge{position:absolute;top:8px;left:8px;background:rgba(20,20,20,.85);color:#3ddc6f;
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;
+    border-radius:3px;border:1px solid #3ddc6f;font-family:"Oswald",sans-serif;}
+  .card .info{padding:8px 10px 0;}
+  .card .info h3{margin:0 0 2px;font-size:13px;font-weight:700;letter-spacing:.3px;line-height:1.2;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card .info .meta{color:var(--gris);font-size:11px;font-family:"Rajdhani",sans-serif;line-height:1.35;}
+  .card .precios{margin-top:5px;font-size:13px;}
+  .card .precios b{color:var(--blanco);font-weight:700;}
+  .card .precios .contado{color:#3ddc6f;font-weight:bold;display:block;font-size:11px;margin-top:1px;}
+  .card .pie{font-size:10px;color:var(--dorado);margin-top:4px;font-weight:600;line-height:1.4;}
+
+  #detalle{position:fixed;inset:0;background:var(--neg);z-index:20;overflow-y:auto;display:none;}
+  #detalle.abierto{display:block;}
+  .det-top{position:relative;background:#000;}
+  .det-cerrar{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.6);color:#fff;
+    border:1px solid var(--rojo);width:34px;height:34px;border-radius:3px;font-size:18px;cursor:pointer;z-index:2;}
+  .det-foto-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;}
+  .det-foto-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .det-contador{position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,.6);border:1px solid var(--rojo);
+    color:#fff;font-size:12px;padding:3px 9px;border-radius:3px;font-weight:600;}
+  .det-nav{position:absolute;top:0;bottom:0;width:35%;background:transparent;border:none;cursor:pointer;}
+  .det-nav.izq{left:0;} .det-nav.der{right:0;}
+  .det-dots{display:flex;gap:4px;justify-content:center;padding:8px 0;background:#000;flex-wrap:wrap;}
+  .det-dots span{width:5px;height:5px;border-radius:50%;background:#555;}
+  .det-dots span.activo{background:var(--rojo2);}
+
+  .det-body{padding:18px 18px 40px;}
+  .det-body h2{margin:0 0 4px;font-size:24px;font-weight:700;font-style:italic;}
+  .det-body .subt{color:var(--gris);font-size:13px;margin-bottom:12px;letter-spacing:.3px;}
+  .det-precio{font-size:28px;font-weight:700;font-family:"Oswald",sans-serif;}
+  .det-precio .contado{color:#3ddc6f;font-size:15px;font-weight:600;margin-left:6px;font-family:"Rajdhani",sans-serif;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+  .box{background:var(--neg2);border:1px solid var(--linea);border-top:2px solid var(--rojo);border-radius:2px;padding:10px 12px;}
+  .box .label{color:var(--gris);font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+  .box .valor{font-size:16px;font-weight:700;margin-top:2px;font-family:"Oswald",sans-serif;}
+  .box.pie{border-top-color:var(--dorado);}
+  .box.pie .valor{color:var(--dorado);font-size:15px;}
+  .acciones{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+  .btn{background:var(--neg2);border:1px solid var(--linea);color:var(--blanco);
+    padding:13px;border-radius:2px;font-size:14px;text-align:center;cursor:pointer;
+    text-decoration:none;display:block;text-transform:uppercase;letter-spacing:.5px;font-weight:600;
+    font-family:"Oswald",sans-serif;transition:border-color .15s, background .15s;}
+  .btn:hover{border-color:var(--rojo2);}
+  .btn.rojo{background:var(--rojo);border-color:var(--rojo);}
+  .btn.rojo:hover{background:var(--rojo2);border-color:var(--rojo2);}
+  .btn[aria-disabled="true"]{opacity:.4;pointer-events:none;}
+
+  #modalTexto{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:30;display:none;
+    align-items:center;justify-content:center;padding:20px;}
+  #modalTexto.abierto{display:flex;}
+  .modal-caja{background:var(--neg2);border:1px solid var(--linea);border-top:3px solid var(--rojo);border-radius:2px;
+    max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column;}
+  .modal-caja .modal-header{padding:14px 16px;border-bottom:1px solid var(--linea);
+    display:flex;justify-content:space-between;align-items:center;font-family:"Oswald",sans-serif;text-transform:uppercase;font-size:13px;letter-spacing:.5px;}
+  .modal-caja pre{padding:16px;margin:0;white-space:pre-wrap;font-family:inherit;font-size:13px;overflow-y:auto;}
+  .modal-footer{padding:12px 16px;border-top:1px solid var(--linea);}
+  .vacio{padding:40px;text-align:center;color:var(--gris);}
+
+  .miniaturas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+  .mini-item{position:relative;border-radius:2px;overflow:hidden;background:#000;aspect-ratio:1;border:1px solid var(--linea);}
+  .mini-item img{width:100%;height:100%;object-fit:cover;display:block;}
+  .mini-item a.mini-descarga{
+    position:absolute;bottom:0;right:0;background:rgba(0,0,0,.7);color:#fff;
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;text-decoration:none;border-top-left-radius:2px;
+  }
+  .mini-item a.mini-descarga:hover{background:var(--rojo);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>RAM</span> MOTORS · STOCK</h1>
+  <div class="sub" id="subActualizado">Cargando...</div>
+  <div class="controles">
+    <input type="text" id="buscar" placeholder="Buscar marca, modelo, patente...">
+
+    <select id="fMarca"><option value="">Marca: Todas</option></select>
+    <select id="fCombustible"><option value="">Combustible: Todos</option></select>
+    <select id="fTransmision"><option value="">Transmisión: Todas</option></select>
+  </div>
+  <div class="contador" id="contador"></div>
+</header>
+
+<div id="lista"></div>
+
+<div id="detalle">
+  <div class="det-top">
+    <button class="det-cerrar" onclick="cerrarDetalle()">✕</button>
+    <div class="det-foto-wrap">
+      <img id="detFoto" src="">
+      <button class="det-nav izq" onclick="cambiarFoto(-1)"></button>
+      <button class="det-nav der" onclick="cambiarFoto(1)"></button>
+      <div class="det-contador" id="detContador"></div>
+    </div>
+    <div class="det-dots" id="detDots"></div>
+  </div>
+  <div class="det-body">
+    <h2 id="detTitulo"></h2>
+    <div class="subt" id="detSubt"></div>
+    <div class="det-precio"><span id="detPrecioCredito"></span><span class="contado" id="detPrecioContado"></span></div>
+
+    <div class="grid2">
+      <div class="box"><div class="label">Kilometraje</div><div class="valor" id="detKm"></div></div>
+      <div class="box"><div class="label">Combustible</div><div class="valor" id="detFuel"></div></div>
+      <div class="box"><div class="label">Transmisión</div><div class="valor" id="detTrans"></div></div>
+      <div class="box"><div class="label">Patente</div><div class="valor" id="detPatente"></div></div>
+      <div class="box pie"><div class="label">Pie mínimo (renta 20%)</div><div class="valor" id="detPieRenta"></div></div>
+      <div class="box pie"><div class="label">Pie instantáneo (35-40% RUT)</div><div class="valor" id="detPieRut"></div></div>
+    </div>
+
+    <div class="acciones">
+      <div class="btn" onclick="abrirTexto()">📝 Ver texto para publicar</div>
+      <div class="btn" id="btnDescargarPubli" onclick="descargarImagenPubli()">📷 Descargar imagen para Instagram</div>
+      <div class="btn rojo" id="btnDescargarFotos" onclick="descargarTodasLasFotos()">⬇️ Descargar todas las fotos</div>
+    </div>
+
+    <div class="miniaturas" id="miniaturas"></div>
+  </div>
+</div>
+
+<div id="modalTexto">
+  <div class="modal-caja">
+    <div class="modal-header">
+      <b>Texto de publicación</b>
+      <span style="cursor:pointer" onclick="cerrarTexto()">✕</span>
+    </div>
+    <pre id="textoPublicacion"></pre>
+    <div class="modal-footer">
+      <div class="btn" onclick="copiarTexto()">📋 Copiar texto</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let vehiculos = [];
+let vehiculoActual = null;
+let fotoIndex = 0;
+
+async function cargar(){
+  try{
+    const r = await fetch('./data.json?t=' + Date.now()); // cache-busting: siempre trae la última versión publicada
+    const d = await r.json();
+    vehiculos = d.vehiculos;
+    document.getElementById('subActualizado').textContent =
+      d.actualizado ? 'Actualizado: ' + new Date(d.actualizado).toLocaleString('es-CL') + ' · ' + d.total + ' vehículos'
+                    : 'Sin datos aún (' + d.total + ' vehículos)';
+    poblarFiltros();
+    render();
+  }catch(e){
+    document.getElementById('subActualizado').textContent = 'No se pudo cargar data.json todavía.';
+  }
+}
+
+function poblarFiltros(){
+  const marcas = [...new Set(vehiculos.map(v=>v.brand).filter(Boolean))].sort();
+  const combustibles = [...new Set(vehiculos.map(v=>v.fuel_type).filter(Boolean))].sort();
+  const transmisiones = [...new Set(vehiculos.map(v=>v.transmission).filter(Boolean))].sort();
+  llenarSelect('fMarca', marcas, 'Marca: Todas');
+  llenarSelect('fCombustible', combustibles, 'Combustible: Todos');
+  llenarSelect('fTransmision', transmisiones, 'Transmisión: Todas');
+}
+
+function llenarSelect(id, valores, etiqueta){
+  const sel = document.getElementById(id);
+  const actual = sel.value;
+  sel.innerHTML = `<option value="">${etiqueta}</option>` + valores.map(v=>`<option value="${v}">${v}</option>`).join('');
+  sel.value = actual;
+}
+
+function filtrarLista(){
+  const q = document.getElementById('buscar').value.toLowerCase().trim();
+  const marca = document.getElementById('fMarca').value;
+  const comb = document.getElementById('fCombustible').value;
+  const trans = document.getElementById('fTransmision').value;
+  return vehiculos.filter(v=>{
+    if(marca && v.brand !== marca) return false;
+    if(comb && v.fuel_type !== comb) return false;
+    if(trans && v.transmission !== trans) return false;
+    if(q){
+      const texto = `${v.brand} ${v.model} ${v.version} ${v.plate}`.toLowerCase();
+      if(!texto.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  const lista = filtrarLista();
+  document.getElementById('contador').textContent = lista.length + ' vehículos encontrados';
+  const cont = document.getElementById('lista');
+  if(lista.length === 0){
+    cont.innerHTML = '<div class="vacio">No hay vehículos que coincidan.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(v=>{
+    const foto = v.fotos[0] ? `./fotos/${encodeURIComponent(v.carpeta)}/${encodeURIComponent(v.fotos[0])}` : '';
+    return `
+    <div class="card" onclick="abrirDetalle('${v.id}')">
+      <div class="card-foto-wrap">
+        ${foto ? `<img src="${foto}" loading="lazy">` : ''}
+        <span class="badge">Disponible</span>
+      </div>
+      <div class="info">
+        <h3>${v.brand} ${v.model}</h3>
+        <div class="meta">Patente: ${v.plate || 'N/A'} · Año: ${v.year}</div>
+        <div class="meta">${v.odometer_fmt} · ${v.fuel_type || 'N/A'} · ${v.transmission || 'N/A'}</div>
+        <div class="precios"><b>${v.price_fmt}</b><span class="contado">Contado ${v.price_contado_fmt}</span></div>
+        <div class="pie">Pie mínimo: ${v.pie_renta_fmt}<br>Pie instantáneo: ${v.pie_rut_min_fmt} - ${v.pie_rut_max_fmt}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirDetalle(id){
+  vehiculoActual = vehiculos.find(v=>v.id === id);
+  if(!vehiculoActual) return;
+  fotoIndex = 0;
+  document.getElementById('detTitulo').textContent = `${vehiculoActual.brand} ${vehiculoActual.model}`;
+  document.getElementById('detSubt').textContent = `${vehiculoActual.version || ''} · Año ${vehiculoActual.year}`.trim();
+  document.getElementById('detPrecioCredito').textContent = vehiculoActual.price_fmt;
+  document.getElementById('detPrecioContado').textContent = ' · Contado ' + vehiculoActual.price_contado_fmt;
+  document.getElementById('detKm').textContent = vehiculoActual.odometer_fmt;
+  document.getElementById('detFuel').textContent = vehiculoActual.fuel_type || 'N/A';
+  document.getElementById('detTrans').textContent = vehiculoActual.transmission || 'N/A';
+  document.getElementById('detPatente').textContent = vehiculoActual.plate || 'N/A';
+  document.getElementById('detPieRenta').textContent = vehiculoActual.pie_renta_fmt;
+  document.getElementById('detPieRut').textContent = `${vehiculoActual.pie_rut_min_fmt} - ${vehiculoActual.pie_rut_max_fmt}`;
+
+  const btnPubli = document.getElementById('btnDescargarPubli');
+  if(vehiculoActual.tiene_publi){
+    btnPubli.dataset.url = `./fotos/${encodeURIComponent(vehiculoActual.carpeta)}/PUBLICACION.jpg`;
+    btnPubli.setAttribute('aria-disabled','false');
+  } else {
+    delete btnPubli.dataset.url;
+    btnPubli.setAttribute('aria-disabled','true');
+  }
+  document.getElementById('btnDescargarFotos').style.opacity = vehiculoActual.cantidad_fotos ? 1 : 0.4;
+
+  renderFoto();
+  renderMiniaturas();
+  document.getElementById('detalle').classList.add('abierto');
+  window.scrollTo(0,0);
+}
+
+function renderMiniaturas(){
+  const cont = document.getElementById('miniaturas');
+  if(!vehiculoActual.fotos.length){ cont.innerHTML = ''; return; }
+  cont.innerHTML = vehiculoActual.fotos.map((nombre, i) => {
+    const url = `./fotos/${encodeURIComponent(vehiculoActual.carpeta)}/${encodeURIComponent(nombre)}`;
+    return `
+    <div class="mini-item">
+      <img src="${url}" loading="lazy" onclick="fotoIndex=${i};renderFoto();">
+      <a class="mini-descarga" href="${url}" download="${vehiculoActual.carpeta} - ${nombre}" title="Descargar esta foto">⬇</a>
+    </div>`;
+  }).join('');
+}
+
+function renderFoto(){
+  const fotos = vehiculoActual.fotos;
+  if(fotos.length === 0){
+    document.getElementById('detFoto').src = '';
+    document.getElementById('detContador').textContent = '';
+    document.getElementById('detDots').innerHTML = '';
+    return;
+  }
+  const src = `./fotos/${encodeURIComponent(vehiculoActual.carpeta)}/${encodeURIComponent(fotos[fotoIndex])}`;
+  document.getElementById('detFoto').src = src;
+  document.getElementById('detContador').textContent = `${fotoIndex+1} / ${fotos.length}`;
+  document.getElementById('detDots').innerHTML = fotos.map((_,i)=>
+    `<span class="${i===fotoIndex?'activo':''}"></span>`).join('');
+}
+
+function cambiarFoto(delta){
+  if(!vehiculoActual || vehiculoActual.fotos.length === 0) return;
+  const n = vehiculoActual.fotos.length;
+  fotoIndex = (fotoIndex + delta + n) % n;
+  renderFoto();
+}
+
+function cerrarDetalle(){ document.getElementById('detalle').classList.remove('abierto'); }
+
+function abrirTexto(){
+  document.getElementById('textoPublicacion').textContent =
+    vehiculoActual.texto_publicacion || '(Este vehículo aún no tiene texto de publicación generado.)';
+  document.getElementById('modalTexto').classList.add('abierto');
+}
+function cerrarTexto(){ document.getElementById('modalTexto').classList.remove('abierto'); }
+function copiarTexto(){ navigator.clipboard.writeText(document.getElementById('textoPublicacion').textContent); }
+
+async function descargarImagenPubli(){
+  const boton = document.getElementById('btnDescargarPubli');
+  const url = boton.dataset.url;
+  if(!url) return;
+  const textoOriginal = boton.textContent;
+  const nombre = `${vehiculoActual.carpeta} - Publicacion.jpg`;
+
+  // En celular: compartir para poder "Guardar en Fotos" con un toque.
+  if (navigator.share && navigator.canShare) {
+    try {
+      boton.textContent = 'Preparando imagen...';
+      const blob = await (await fetch(url)).blob();
+      const archivo = new File([blob], nombre, { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare({ files: [archivo] })) {
+        boton.textContent = textoOriginal;
+        await navigator.share({ files: [archivo], title: vehiculoActual.carpeta });
+        return;
+      }
+    } catch (e) {
+      boton.textContent = textoOriginal;
+      if (e && e.name === 'AbortError') return;
+    }
+  }
+
+  // Computador: descarga directa normal.
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  boton.textContent = textoOriginal;
+}
+
+async function descargarTodasLasFotos(){
+  if(!vehiculoActual || vehiculoActual.cantidad_fotos === 0) return;
+  const boton = document.getElementById('btnDescargarFotos');
+  const textoOriginal = boton.textContent;
+  const fotos = vehiculoActual.fotos;
+  const urls = fotos.map(nombre => `./fotos/${encodeURIComponent(vehiculoActual.carpeta)}/${encodeURIComponent(nombre)}`);
+
+  // En celular (iPhone/Android): usamos el panel nativo de "Compartir" para que
+  // el usuario pueda elegir "Guardar en Fotos" y quedan TODAS juntas en la
+  // galería con un solo toque. Un simple enlace de descarga en el navegador del
+  // celular no guarda en la galería (guarda en Archivos, o ni descarga en iOS).
+  if (navigator.share && navigator.canShare) {
+    try {
+      boton.textContent = 'Preparando fotos...';
+      const archivos = await Promise.all(urls.map(async (url, i) => {
+        const blob = await (await fetch(url)).blob();
+        return new File([blob], fotos[i], { type: blob.type || 'image/jpeg' });
+      }));
+      if (navigator.canShare({ files: archivos })) {
+        boton.textContent = textoOriginal;
+        await navigator.share({ files: archivos, title: vehiculoActual.carpeta });
+        return;
+      }
+    } catch (e) {
+      boton.textContent = textoOriginal;
+      if (e && e.name === 'AbortError') return; // el usuario cerró el panel de compartir, no hacemos nada más
+      // si falla por otro motivo, seguimos al método de descarga normal de abajo
+    }
+  }
+
+  // Computador (o celulares sin soporte de compartir archivos): descarga directa
+  // de todas las fotos juntas, de una sola vez.
+  urls.forEach((url, i) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${vehiculoActual.carpeta} - ${fotos[i]}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+  boton.textContent = textoOriginal;
+}
+
+document.getElementById('buscar').addEventListener('input', render);
+document.getElementById('fMarca').addEventListener('change', render);
+document.getElementById('fCombustible').addEventListener('change', render);
+document.getElementById('fTransmision').addEventListener('change', render);
+
+cargar();
+setInterval(cargar, 20000);
+</script>
+</body>
+</html>
