@@ -177,6 +177,15 @@
     <select id="fCombustible"><option value="">Combustible: Todos</option></select>
     <select id="fTransmision"><option value="">Transmisión: Todas</option></select>
   </div>
+  <div class="controles" style="margin-top:8px;">
+    <select id="fOrden">
+      <option value="">Ordenar: Sin orden</option>
+      <option value="desc">Precio: mayor a menor</option>
+      <option value="asc">Precio: menor a mayor</option>
+    </select>
+    <input type="number" id="fPrecioMin" placeholder="Precio mín." style="width:120px;">
+    <input type="number" id="fPrecioMax" placeholder="Precio máx." style="width:120px;">
+  </div>
   <div class="contador" id="contador"></div>
 </header>
 
@@ -294,16 +303,27 @@ function filtrarLista(){
   const marca = document.getElementById('fMarca').value;
   const comb = document.getElementById('fCombustible').value;
   const trans = document.getElementById('fTransmision').value;
-  return vehiculos.filter(v=>{
+  const precioMin = parseInt(document.getElementById('fPrecioMin').value) || null;
+  const precioMax = parseInt(document.getElementById('fPrecioMax').value) || null;
+  const orden = document.getElementById('fOrden').value;
+
+  let resultado = vehiculos.filter(v=>{
     if(marca && v.brand !== marca) return false;
     if(comb && v.fuel_type !== comb) return false;
     if(trans && v.transmission !== trans) return false;
+    if(precioMin !== null && (v.price||0) < precioMin) return false;
+    if(precioMax !== null && (v.price||0) > precioMax) return false;
     if(q){
       const texto = `${v.brand} ${v.model} ${v.version} ${v.plate}`.toLowerCase();
       if(!texto.includes(q)) return false;
     }
     return true;
   });
+
+  if(orden === 'desc') resultado.sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(orden === 'asc') resultado.sort((a,b)=>(a.price||0)-(b.price||0));
+
+  return resultado;
 }
 
 function render(){
@@ -491,6 +511,9 @@ document.getElementById('buscar').addEventListener('input', render);
 document.getElementById('fMarca').addEventListener('change', render);
 document.getElementById('fCombustible').addEventListener('change', render);
 document.getElementById('fTransmision').addEventListener('change', render);
+document.getElementById('fOrden').addEventListener('change', render);
+document.getElementById('fPrecioMin').addEventListener('input', render);
+document.getElementById('fPrecioMax').addEventListener('input', render);
 
 cargar();
 setInterval(cargar, 20000);
