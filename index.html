@@ -22,6 +22,23 @@
   body{margin:0;background:var(--neg);color:var(--blanco);font-family:"Rajdhani","Segoe UI",Arial,sans-serif;font-size:15px;}
   h1,h2,h3,.titulo-deportivo{font-family:"Oswald","Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.5px;}
 
+  .hero{position:relative;min-height:52vh;display:flex;align-items:flex-end;overflow:hidden;background:#000;}
+  .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 30%;
+    filter:brightness(.55) saturate(1.15);transition:background-image .8s ease;background-color:#111;}
+  .hero-fade{position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 55%, var(--neg) 100%),
+               linear-gradient(90deg, rgba(0,0,0,.80) 0%, rgba(0,0,0,.15) 60%);}
+  .hero-content{position:relative;padding:36px 22px 30px;max-width:640px;}
+  .hero-eyebrow{color:var(--rojo2);font-family:"Rajdhani",sans-serif;font-weight:700;letter-spacing:2.5px;font-size:11px;margin-bottom:10px;}
+  .hero-title{font-family:"Oswald",sans-serif;font-weight:700;font-style:italic;font-size:clamp(30px,7vw,54px);
+    line-height:1.03;text-transform:uppercase;margin:0 0 14px;color:#fff;}
+  .hero-title span{color:var(--rojo2);}
+  .hero-sub{color:#cfcfcf;font-size:13.5px;max-width:420px;margin:0 0 22px;line-height:1.5;}
+  .hero-stats{display:flex;gap:28px;flex-wrap:wrap;}
+  .hero-stat .n{font-family:"Oswald",sans-serif;font-weight:700;font-size:20px;color:#fff;}
+  .hero-stat .l{font-family:"Rajdhani",sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--gris);margin-top:2px;}
+  @media (max-width:480px){ .hero{min-height:46vh;} }
+
   header{
     position:relative;padding:26px 20px 18px;border-bottom:2px solid var(--rojo);
     background:linear-gradient(135deg,#141414 0%,#0a0a0a 55%,#0a0a0a 100%);
@@ -40,25 +57,27 @@
   header .sub{color:var(--gris);font-size:12px;margin-top:4px;position:relative;letter-spacing:.3px;}
   .controles{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;}
   .controles input, .controles select{
-    background:var(--neg2);border:1px solid var(--linea);color:var(--blanco);
-    padding:9px 10px;border-radius:3px;font-size:13px;font-family:"Rajdhani",sans-serif;font-weight:600;
+    background:var(--neg2);border:1.5px solid var(--linea);color:var(--blanco);
+    padding:9px 12px;border-radius:10px;font-size:13px;font-family:"Rajdhani",sans-serif;font-weight:600;
+    transition:border-color .15s, box-shadow .15s;
   }
-  .controles input:focus, .controles select:focus{outline:none;border-color:var(--rojo);}
+  .controles input:hover, .controles select:hover{border-color:#555;}
+  .controles input:focus, .controles select:focus{outline:none;border-color:var(--rojo2);box-shadow:0 0 0 3px rgba(255,59,71,.18);}
   #buscar{flex:1;min-width:200px;}
   .contador{color:var(--gris);font-size:12px;margin-top:10px;position:relative;text-transform:uppercase;letter-spacing:.5px;}
   #lista{padding:14px 16px 60px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   @media (max-width:420px){ #lista{gap:8px;} }
   .card{
-    background:var(--neg2);border:1px solid var(--linea);border-top:3px solid var(--rojo);
-    padding:0 0 10px;cursor:pointer;overflow:hidden;border-radius:4px;
+    background:var(--neg2);border:1.5px solid var(--linea);border-top:3px solid var(--rojo);
+    padding:0 0 10px;cursor:pointer;overflow:hidden;border-radius:14px;
     transition:transform .15s, box-shadow .15s, border-color .15s;
   }
-  .card:hover{border-color:var(--rojo2);transform:translateY(-3px);box-shadow:0 8px 18px rgba(226,32,42,.18);}
+  .card:hover{border-color:var(--rojo2);transform:translateY(-3px);box-shadow:0 10px 22px rgba(226,32,42,.22);}
   .card .card-foto-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;}
   .card .card-foto-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
   .card .badge{position:absolute;top:8px;left:8px;background:rgba(20,20,20,.85);color:#3ddc6f;
     font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;
-    border-radius:3px;border:1px solid #3ddc6f;font-family:"Oswald",sans-serif;}
+    border-radius:8px;border:1px solid #3ddc6f;font-family:"Oswald",sans-serif;}
   .card .info{padding:8px 10px 0;}
   .card .info h3{margin:0 0 2px;font-size:13px;font-weight:700;letter-spacing:.3px;line-height:1.2;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -72,11 +91,11 @@
   #detalle.abierto{display:block;}
   .det-top{position:relative;background:#000;}
   .det-cerrar{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.6);color:#fff;
-    border:1px solid var(--rojo);width:34px;height:34px;border-radius:3px;font-size:18px;cursor:pointer;z-index:2;}
+    border:1px solid var(--rojo);width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;z-index:2;}
   .det-foto-wrap{position:relative;width:100%;aspect-ratio:4/3;background:#000;}
   .det-foto-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
   .det-contador{position:absolute;bottom:10px;right:14px;background:rgba(0,0,0,.6);border:1px solid var(--rojo);
-    color:#fff;font-size:12px;padding:3px 9px;border-radius:3px;font-weight:600;}
+    color:#fff;font-size:12px;padding:3px 9px;border-radius:8px;font-weight:600;}
   .det-nav{position:absolute;top:0;bottom:0;width:35%;background:transparent;border:none;cursor:pointer;}
   .det-nav.izq{left:0;} .det-nav.der{right:0;}
   .det-dots{display:flex;gap:4px;justify-content:center;padding:8px 0;background:#000;flex-wrap:wrap;}
@@ -89,17 +108,22 @@
   .det-precio{font-size:28px;font-weight:700;font-family:"Oswald",sans-serif;}
   .det-precio .contado{color:#3ddc6f;font-size:15px;font-weight:600;margin-left:6px;font-family:"Rajdhani",sans-serif;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
-  .box{background:var(--neg2);border:1px solid var(--linea);border-top:2px solid var(--rojo);border-radius:2px;padding:10px 12px;}
+  .box{background:var(--neg2);border:1.5px solid var(--linea);border-top:2px solid var(--rojo);border-radius:10px;padding:10px 12px;
+    transition:border-color .15s, box-shadow .15s;}
+  .box:hover{border-color:var(--rojo2);box-shadow:0 4px 12px rgba(226,32,42,.15);}
   .box .label{color:var(--gris);font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
   .box .valor{font-size:16px;font-weight:700;margin-top:2px;font-family:"Oswald",sans-serif;}
   .box.pie{border-top-color:var(--dorado);}
+  .box.pie:hover{border-color:var(--dorado);box-shadow:0 4px 12px rgba(230,178,90,.18);}
   .box.pie .valor{color:var(--dorado);font-size:15px;}
+  .box.pie .req{color:var(--gris);font-size:10px;margin-top:3px;line-height:1.3;}
   .acciones{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
-  .btn{background:var(--neg2);border:1px solid var(--linea);color:var(--blanco);
-    padding:13px;border-radius:2px;font-size:14px;text-align:center;cursor:pointer;
+  .btn{background:var(--neg2);border:1.5px solid var(--linea);color:var(--blanco);
+    padding:13px;border-radius:10px;font-size:14px;text-align:center;cursor:pointer;
     text-decoration:none;display:block;text-transform:uppercase;letter-spacing:.5px;font-weight:600;
-    font-family:"Oswald",sans-serif;transition:border-color .15s, background .15s;}
-  .btn:hover{border-color:var(--rojo2);}
+    font-family:"Oswald",sans-serif;transition:border-color .15s, background .15s, transform .1s;}
+  .btn:hover{border-color:var(--rojo2);background:#1c1c1c;}
+  .btn:active{transform:scale(.98);}
   .btn.rojo{background:var(--rojo);border-color:var(--rojo);}
   .btn.rojo:hover{background:var(--rojo2);border-color:var(--rojo2);}
   .btn[aria-disabled="true"]{opacity:.4;pointer-events:none;}
@@ -107,7 +131,7 @@
   #modalTexto{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:30;display:none;
     align-items:center;justify-content:center;padding:20px;}
   #modalTexto.abierto{display:flex;}
-  .modal-caja{background:var(--neg2);border:1px solid var(--linea);border-top:3px solid var(--rojo);border-radius:2px;
+  .modal-caja{background:var(--neg2);border:1.5px solid var(--linea);border-top:3px solid var(--rojo);border-radius:14px;
     max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column;}
   .modal-caja .modal-header{padding:14px 16px;border-bottom:1px solid var(--linea);
     display:flex;justify-content:space-between;align-items:center;font-family:"Oswald",sans-serif;text-transform:uppercase;font-size:13px;letter-spacing:.5px;}
@@ -116,7 +140,7 @@
   .vacio{padding:40px;text-align:center;color:var(--gris);}
 
   .miniaturas{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
-  .mini-item{position:relative;border-radius:2px;overflow:hidden;background:#000;aspect-ratio:1;border:1px solid var(--linea);}
+  .mini-item{position:relative;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:1;border:1px solid var(--linea);}
   .mini-item img{width:100%;height:100%;object-fit:cover;display:block;}
   .mini-item a.mini-descarga{
     position:absolute;bottom:0;right:0;background:rgba(0,0,0,.7);color:#fff;
@@ -127,6 +151,21 @@
 </style>
 </head>
 <body>
+
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-fade"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">STOCK CERTIFICADO · CRÉDITO INSTANTÁNEO CON RUT</div>
+    <h1 class="hero-title">ENCUENTRA TU<br><span>PRÓXIMO AUTO.</span></h1>
+    <p class="hero-sub">Vehículos certificados de RAM Motors, con pie desde 20% acreditando renta y aprobación instantánea solo con RUT.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="n" id="heroTotal">--</div><div class="l">VEHÍCULOS EN STOCK</div></div>
+      <div class="hero-stat"><div class="n">20%</div><div class="l">PIE DESDE</div></div>
+      <div class="hero-stat"><div class="n">INSTANTÁNEA</div><div class="l">APROBACIÓN CON RUT</div></div>
+    </div>
+  </div>
+</section>
 
 <header>
   <h1><span>RAM</span> MOTORS · STOCK</h1>
@@ -164,8 +203,12 @@
       <div class="box"><div class="label">Combustible</div><div class="valor" id="detFuel"></div></div>
       <div class="box"><div class="label">Transmisión</div><div class="valor" id="detTrans"></div></div>
       <div class="box"><div class="label">Patente</div><div class="valor" id="detPatente"></div></div>
-      <div class="box pie"><div class="label">Pie mínimo (renta 20%)</div><div class="valor" id="detPieRenta"></div></div>
-      <div class="box pie"><div class="label">Pie instantáneo (35-40% RUT)</div><div class="valor" id="detPieRut"></div></div>
+      <div class="box pie">
+        <div class="label">Pie con renta (20%)</div>
+        <div class="valor" id="detPieRenta"></div>
+        <div class="req" id="detPieRentaReq"></div>
+      </div>
+      <div class="box pie"><div class="label">Pie instantáneo (35% RUT)</div><div class="valor" id="detPieRut"></div></div>
     </div>
 
     <div class="acciones">
@@ -205,9 +248,28 @@ async function cargar(){
       d.actualizado ? 'Actualizado: ' + new Date(d.actualizado).toLocaleString('es-CL') + ' · ' + d.total + ' vehículos'
                     : 'Sin datos aún (' + d.total + ' vehículos)';
     poblarFiltros();
+    actualizarHero();
     render();
   }catch(e){
     document.getElementById('subActualizado').textContent = 'No se pudo cargar data.json todavía.';
+  }
+}
+
+function actualizarHero(){
+  const heroTotal = document.getElementById('heroTotal');
+  if (heroTotal) heroTotal.textContent = vehiculos.length;
+
+  // Foto de fondo del hero: el vehículo más caro con foto (queda más "aspiracional"
+  // que una foto cualquiera), se recalcula solo la primera vez que hay datos.
+  const heroBg = document.getElementById('heroBg');
+  if (heroBg && !heroBg.dataset.listo && vehiculos.length){
+    const conFoto = vehiculos.filter(v => v.fotos && v.fotos[0]);
+    if (conFoto.length){
+      const destacado = conFoto.reduce((a,b) => (b.price||0) > (a.price||0) ? b : a);
+      const url = `./fotos/${encodeURIComponent(destacado.carpeta)}/${encodeURIComponent(destacado.fotos[0])}`;
+      heroBg.style.backgroundImage = `url("${url}")`;
+      heroBg.dataset.listo = "1";
+    }
   }
 }
 
@@ -265,7 +327,7 @@ function render(){
         <div class="meta">Patente: ${v.plate || 'N/A'} · Año: ${v.year}</div>
         <div class="meta">${v.odometer_fmt} · ${v.fuel_type || 'N/A'} · ${v.transmission || 'N/A'}</div>
         <div class="precios"><b>${v.price_fmt}</b><span class="contado">Contado ${v.price_contado_fmt}</span></div>
-        <div class="pie">Pie mínimo: ${v.pie_renta_fmt}<br>Pie instantáneo: ${v.pie_rut_min_fmt} - ${v.pie_rut_max_fmt}</div>
+        <div class="pie">Pie con renta (20%): ${v.pie_renta_fmt} · Pie instantáneo (35% RUT): ${v.pie_rut_fmt}</div>
       </div>
     </div>`;
   }).join('');
@@ -284,7 +346,8 @@ function abrirDetalle(id){
   document.getElementById('detTrans').textContent = vehiculoActual.transmission || 'N/A';
   document.getElementById('detPatente').textContent = vehiculoActual.plate || 'N/A';
   document.getElementById('detPieRenta').textContent = vehiculoActual.pie_renta_fmt;
-  document.getElementById('detPieRut').textContent = `${vehiculoActual.pie_rut_min_fmt} - ${vehiculoActual.pie_rut_max_fmt}`;
+  document.getElementById('detPieRentaReq').textContent = vehiculoActual.pie_renta_requisitos || '';
+  document.getElementById('detPieRut').textContent = vehiculoActual.pie_rut_fmt;
 
   const btnPubli = document.getElementById('btnDescargarPubli');
   if(vehiculoActual.tiene_publi){
