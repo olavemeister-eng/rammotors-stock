@@ -866,12 +866,23 @@ async function generarPosterMarketing(){
     ctx.fillRect(0, 0, MKT_W, MKT_H);
 
     // ---- 3 paneles superiores difuminados entre sí ----
-    const panelImgH = 480, panelW = MKT_W / 3, blendW = 90;
+    const panelImgH = 540, panelW = MKT_W / 3, blendW = 90;
     const imgsPanel = [imgP1, imgP2, imgP3];
     function dibujarCover(ctxDestino, img, dx, dy, dw, dh){
       const escala = Math.max(dw / img.width, dh / img.height);
       const sw = dw / escala, sh = dh / escala;
       const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+      ctxDestino.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    }
+    // Igual que dibujarCover, pero recortando antes un margen de la foto
+    // (zoom leve y centrado): evita que el panel muestre demasiado
+    // cielo/fondo y poco auto en fotos panorámicas.
+    function dibujarCoverZoom(ctxDestino, img, dx, dy, dw, dh){
+      const mX = img.width * 0.06, mYTop = img.height * 0.08, mYBot = img.height * 0.08;
+      const sw0 = img.width - mX*2, sh0 = img.height - mYTop - mYBot;
+      const escala = Math.max(dw / sw0, dh / sh0);
+      const sw = dw / escala, sh = dh / escala;
+      const sx = mX + (sw0 - sw) / 2, sy = mYTop + (sh0 - sh) / 2;
       ctxDestino.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
     }
     for(let i=0;i<3;i++){
@@ -882,7 +893,7 @@ async function generarPosterMarketing(){
       const capa = document.createElement('canvas');
       capa.width = anchoPanel; capa.height = panelImgH;
       const cctx = capa.getContext('2d');
-      dibujarCover(cctx, imgsPanel[i], 0, 0, anchoPanel, panelImgH);
+      dibujarCoverZoom(cctx, imgsPanel[i], 0, 0, anchoPanel, panelImgH);
       if(i > 0){
         cctx.globalCompositeOperation = 'destination-in';
         const grad = cctx.createLinearGradient(0,0,anchoPanel,0);
@@ -936,7 +947,7 @@ async function generarPosterMarketing(){
     mktTexto(ctx, 'STOCK CERTIFICADO . CREDITO INSTANTANEO', MKT_W/2, ty, {align:'center', color:'#d2d2d2'});
 
     // ---- Foto principal con viñeta ----
-    const fotoY0 = ty + 60, fotoH = 760;
+    const fotoY0 = ty + 60, fotoH = 690;
     dibujarCover(ctx, imgPrincipal, 0, fotoY0, MKT_W, fotoH);
     const vg = ctx.createRadialGradient(MKT_W/2, fotoY0+fotoH/2, Math.min(MKT_W,fotoH)*0.28, MKT_W/2, fotoY0+fotoH/2, Math.max(MKT_W,fotoH)*0.62);
     vg.addColorStop(0, 'rgba(10,10,10,0)');
