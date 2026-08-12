@@ -155,6 +155,10 @@
   .btn.marketing:hover{background:linear-gradient(135deg,#a91650,#c2185b);}
   .btn.marketing2{background:var(--neg2);border:1.5px dashed #c2185b;color:#ff6f9c;}
   .btn.marketing2:hover{background:#2a1620;border-color:#e2202a;}
+  .btn.transferencia{background:linear-gradient(135deg,#00838f,#00acc1);border-color:#00838f;}
+  .btn.transferencia:hover{background:linear-gradient(135deg,#006d77,#00838f);}
+  .btn.reserva{background:linear-gradient(135deg,#00838f,#0a0a0a);border:1.5px solid #00838f;}
+  .btn.reserva:hover{background:linear-gradient(135deg,#006d77,#0a0a0a);}
   .modal-caja{background:var(--neg2);border:1.5px solid var(--linea);border-top:3px solid var(--rojo);border-radius:14px;
     max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column;}
   .modal-caja .modal-header{padding:14px 16px;border-bottom:1px solid var(--linea);
@@ -249,6 +253,8 @@
       <div class="btn" id="btnDescargarPubli" onclick="descargarImagenPubli()">📷 Descargar imagen para Instagram</div>
       <div class="btn marketing" id="btnDescargarMarketing" onclick="descargarImagenMarketing()">🎬 Descargar imagen de Marketing</div>
       <div class="btn marketing2" onclick="abrirSelectorMarketing()">✨ Crear Marketing desde acá (elegir fotos)</div>
+      <div class="btn transferencia" onclick="descargarDatosTransferencia()">💳 Enviar Datos de Transferencia</div>
+      <div class="btn reserva" id="btnGenerarReserva" onclick="generarImagenReserva()">💌 Generar Imagen de Reserva</div>
       <div class="btn rojo" id="btnDescargarFotos" onclick="descargarTodasLasFotos()">⬇️ Descargar todas las fotos</div>
     </div>
 
@@ -429,6 +435,9 @@ function abrirDetalle(id){
     btnMarketing.setAttribute('aria-disabled','true');
   }
 
+  const btnReserva = document.getElementById('btnGenerarReserva');
+  btnReserva.setAttribute('aria-disabled', vehiculoActual.tiene_publi ? 'false' : 'true');
+
   document.getElementById('btnDescargarFotos').style.opacity = vehiculoActual.cantidad_fotos ? 1 : 0.4;
 
   renderFoto();
@@ -514,6 +523,124 @@ async function descargarImagenPubli(){
   a.click();
   document.body.removeChild(a);
   boton.textContent = textoOriginal;
+}
+
+function _cargarImagenReserva(url){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+async function generarImagenReserva(){
+  const btn = document.getElementById('btnGenerarReserva');
+  if (btn.getAttribute('aria-disabled') === 'true') return;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Generando...';
+  try {
+    await document.fonts.load('700 40px Oswald');
+    await document.fonts.ready;
+
+    const carpeta = vehiculoActual.carpeta;
+    const [imgPubli, imgDatos] = await Promise.all([
+      _cargarImagenReserva(`./fotos/${encodeURIComponent(carpeta)}/PUBLICACION.jpg`),
+      _cargarImagenReserva('./datos_transferencia.jpg'),
+    ]);
+
+    const W2 = 1080;
+    const PT = 816; // recorte justo antes del bloque de precios, igual que en la app de escritorio
+    const arribaH = Math.min(PT, imgPubli.height);
+    const datosH = Math.round(imgDatos.height * W2 / imgDatos.width);
+    const bannerH = 170, blendH = 130;
+    const altoTotal = arribaH + bannerH + datosH;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W2; canvas.height = altoTotal;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(0, 0, W2, altoTotal);
+
+    // Foto + título + specs, nítidos, sin tocar
+    ctx.drawImage(imgPubli, 0, 0, imgPubli.width, arribaH, 0, 0, W2, arribaH);
+
+    // Franja de felicitación (puente limpio)
+    const by0 = arribaH;
+    ctx.fillStyle = '#121212'; ctx.fillRect(0, by0, W2, bannerH);
+    ctx.fillStyle = '#de202a'; ctx.fillRect(0, by0, W2, 3);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.font = '700 56px Oswald, Arial, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('¡FELICIDADES!', W2/2, by0 + 34);
+    ctx.font = '700 26px Oswald, Arial, sans-serif';
+    ctx.fillStyle = '#de202a';
+    ctx.fillText('ESTÁS A PUNTO DE RESERVAR TU VEHÍCULO', W2/2, by0 + 106);
+
+    // Imagen de datos, difuminada solo en su propio margen superior
+    const capa = document.createElement('canvas');
+    capa.width = W2; capa.height = datosH;
+    const cctx = capa.getContext('2d');
+    cctx.drawImage(imgDatos, 0, 0, W2, datosH);
+    cctx.globalCompositeOperation = 'destination-in';
+    const grad = cctx.createLinearGradient(0, 0, 0, datosH);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(blendH / datosH, 'rgba(0,0,0,1)');
+    grad.addColorStop(1, 'rgba(0,0,0,1)');
+    cctx.fillStyle = grad;
+    cctx.fillRect(0, 0, W2, datosH);
+    cctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(capa, 0, by0 + bannerH);
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const nombre = `${carpeta} - Reserva.jpg`;
+
+    if (navigator.share && navigator.canShare) {
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const archivo = new File([blob], nombre, { type: 'image/jpeg' });
+        if (navigator.canShare({ files: [archivo] })) {
+          await navigator.share({ files: [archivo], title: carpeta });
+          btn.textContent = textoOriginal;
+          return;
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') { btn.textContent = textoOriginal; return; }
+      }
+    }
+    const a5 = document.createElement('a');
+    a5.href = dataUrl; a5.download = nombre;
+    document.body.appendChild(a5); a5.click(); document.body.removeChild(a5);
+  } catch (e) {
+    alert('No se pudo generar la imagen de reserva: ' + e);
+  } finally {
+    btn.textContent = textoOriginal;
+  }
+}
+
+async function descargarDatosTransferencia(){
+  const url = './datos_transferencia.jpg';
+  const nombre = 'Datos de Transferencia RAM Motors.jpg';
+  if (navigator.share && navigator.canShare) {
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('no encontrada');
+      const blob = await resp.blob();
+      const archivo = new File([blob], nombre, { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare({ files: [archivo] })) {
+        await navigator.share({ files: [archivo], title: 'Datos de Transferencia' });
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      alert('No encontré la imagen de datos de transferencia. Avisa que se publique de nuevo el sitio.');
+      return;
+    }
+  }
+  const a4 = document.createElement('a');
+  a4.href = url; a4.download = nombre;
+  document.body.appendChild(a4); a4.click(); document.body.removeChild(a4);
 }
 
 async function descargarImagenMarketing(){
