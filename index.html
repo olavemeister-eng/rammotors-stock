@@ -135,7 +135,7 @@
     align-items:center;justify-content:center;padding:16px;}
   #modalMarketing.abierto{display:flex;}
   .marketing-caja{max-width:640px;max-height:92vh;}
-  .marketing-sub{padding:10px 16px 0;color:var(--gris);font-size:12px;}
+  .marketing-sub{padding:10px 16px 0;color:var(--gris);font-size:12px;line-height:1.4;}
   .marketing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 16px;overflow-y:auto;max-height:34vh;}
   .marketing-thumb{position:relative;border-radius:8px;overflow:hidden;border:2px solid var(--linea);cursor:pointer;aspect-ratio:4/3;background:#000;}
   .marketing-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -153,6 +153,8 @@
   #marketingResultado a.btn{display:inline-block;margin-top:10px;text-decoration:none;}
   .btn.marketing{background:linear-gradient(135deg,#c2185b,#e2202a);border-color:#c2185b;}
   .btn.marketing:hover{background:linear-gradient(135deg,#a91650,#c2185b);}
+  .btn.marketing2{background:var(--neg2);border:1.5px dashed #c2185b;color:#ff6f9c;}
+  .btn.marketing2:hover{background:#2a1620;border-color:#e2202a;}
   .modal-caja{background:var(--neg2);border:1.5px solid var(--linea);border-top:3px solid var(--rojo);border-radius:14px;
     max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column;}
   .modal-caja .modal-header{padding:14px 16px;border-bottom:1px solid var(--linea);
@@ -245,8 +247,9 @@
     <div class="acciones">
       <div class="btn" onclick="abrirTexto()">📝 Ver texto para publicar</div>
       <div class="btn" id="btnDescargarPubli" onclick="descargarImagenPubli()">📷 Descargar imagen para Instagram</div>
+      <div class="btn marketing" id="btnDescargarMarketing" onclick="descargarImagenMarketing()">🎬 Descargar imagen de Marketing</div>
+      <div class="btn marketing2" onclick="abrirSelectorMarketing()">✨ Crear Marketing desde acá (elegir fotos)</div>
       <div class="btn rojo" id="btnDescargarFotos" onclick="descargarTodasLasFotos()">⬇️ Descargar todas las fotos</div>
-      <div class="btn marketing" onclick="abrirSelectorMarketing()">🎬 Elegir fotos y generar Marketing</div>
     </div>
 
     <div class="miniaturas" id="miniaturas"></div>
@@ -256,10 +259,10 @@
 <div id="modalMarketing">
   <div class="modal-caja marketing-caja">
     <div class="modal-header">
-      <b>Elegir fotos para Marketing</b>
+      <b>Crear imagen de Marketing</b>
       <span style="cursor:pointer" onclick="cerrarSelectorMarketing()">✕</span>
     </div>
-    <div class="marketing-sub">Toca una miniatura para asignarla a un rol, o usa los menús de abajo.</div>
+    <div class="marketing-sub">Toca una miniatura para asignarla a un rol, o usa los menús de abajo. Esto se genera en tu celular/PC, sin necesitar tu computador de escritorio prendido.</div>
     <div class="marketing-grid" id="marketingGrid"></div>
     <div class="marketing-selectores" id="marketingSelectores"></div>
     <div class="modal-footer">
@@ -416,6 +419,16 @@ function abrirDetalle(id){
     delete btnPubli.dataset.url;
     btnPubli.setAttribute('aria-disabled','true');
   }
+
+  const btnMarketing = document.getElementById('btnDescargarMarketing');
+  if(vehiculoActual.tiene_marketing){
+    btnMarketing.dataset.url = `./fotos/${encodeURIComponent(vehiculoActual.carpeta)}/MARKETING.jpg`;
+    btnMarketing.setAttribute('aria-disabled','false');
+  } else {
+    delete btnMarketing.dataset.url;
+    btnMarketing.setAttribute('aria-disabled','true');
+  }
+
   document.getElementById('btnDescargarFotos').style.opacity = vehiculoActual.cantidad_fotos ? 1 : 0.4;
 
   renderFoto();
@@ -500,6 +513,40 @@ async function descargarImagenPubli(){
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  boton.textContent = textoOriginal;
+}
+
+async function descargarImagenMarketing(){
+  const boton = document.getElementById('btnDescargarMarketing');
+  const url = boton.dataset.url;
+  if(!url) return;
+  const textoOriginal = boton.textContent;
+  const nombre = `${vehiculoActual.carpeta} - Marketing.jpg`;
+
+  // En celular: compartir para poder "Guardar en Fotos" con un toque.
+  if (navigator.share && navigator.canShare) {
+    try {
+      boton.textContent = 'Preparando imagen...';
+      const blob = await (await fetch(url)).blob();
+      const archivo = new File([blob], nombre, { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare({ files: [archivo] })) {
+        boton.textContent = textoOriginal;
+        await navigator.share({ files: [archivo], title: vehiculoActual.carpeta });
+        return;
+      }
+    } catch (e) {
+      boton.textContent = textoOriginal;
+      if (e && e.name === 'AbortError') return;
+    }
+  }
+
+  // Computador: descarga directa normal.
+  const a2 = document.createElement('a');
+  a2.href = url;
+  a2.download = nombre;
+  document.body.appendChild(a2);
+  a2.click();
+  document.body.removeChild(a2);
   boton.textContent = textoOriginal;
 }
 
@@ -831,8 +878,26 @@ async function generarPosterMarketing(){
     const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
     resultado.innerHTML = `
       <img src="${dataUrl}">
-      <br><a class="btn rojo" href="${dataUrl}" download="${carpeta} - MARKETING.jpg">⬇️ Descargar MARKETING.jpg</a>
+      <br><div class="btn rojo" id="btnGuardarMktGenerado" style="margin-top:10px;">⬇️ Guardar MARKETING.jpg</div>
     `;
+    document.getElementById('btnGuardarMktGenerado').onclick = async () => {
+      const nombre = `${carpeta} - Marketing.jpg`;
+      if (navigator.share && navigator.canShare) {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          const archivo = new File([blob], nombre, { type: 'image/jpeg' });
+          if (navigator.canShare({ files: [archivo] })) {
+            await navigator.share({ files: [archivo], title: carpeta });
+            return;
+          }
+        } catch (e) {
+          if (e && e.name === 'AbortError') return;
+        }
+      }
+      const a3 = document.createElement('a');
+      a3.href = dataUrl; a3.download = nombre;
+      document.body.appendChild(a3); a3.click(); document.body.removeChild(a3);
+    };
   } catch(e){
     resultado.innerHTML = `<div style="color:#f66;padding:10px;">No se pudo generar: ${e}</div>`;
   } finally {
