@@ -155,8 +155,6 @@
   .btn.marketing:hover{background:linear-gradient(135deg,#a91650,#c2185b);}
   .btn.marketing2{background:var(--neg2);border:1.5px dashed #c2185b;color:#ff6f9c;}
   .btn.marketing2:hover{background:#2a1620;border-color:#e2202a;}
-  .btn.transferencia{background:linear-gradient(135deg,#00838f,#00acc1);border-color:#00838f;}
-  .btn.transferencia:hover{background:linear-gradient(135deg,#006d77,#00838f);}
   .btn.reserva{background:linear-gradient(135deg,#00838f,#0a0a0a);border:1.5px solid #00838f;}
   .btn.reserva:hover{background:linear-gradient(135deg,#006d77,#0a0a0a);}
   .modal-caja{background:var(--neg2);border:1.5px solid var(--linea);border-top:3px solid var(--rojo);border-radius:14px;
@@ -253,7 +251,6 @@
       <div class="btn" id="btnDescargarPubli" onclick="descargarImagenPubli()">📷 Descargar imagen para Instagram</div>
       <div class="btn marketing" id="btnDescargarMarketing" onclick="descargarImagenMarketing()">🎬 Descargar imagen de Marketing</div>
       <div class="btn marketing2" onclick="abrirSelectorMarketing()">✨ Crear Marketing desde acá (elegir fotos)</div>
-      <div class="btn transferencia" onclick="descargarDatosTransferencia()">💳 Enviar Datos de Transferencia</div>
       <div class="btn reserva" id="btnGenerarReserva" onclick="generarImagenReserva()">💌 Generar Imagen de Reserva</div>
       <div class="btn rojo" id="btnDescargarFotos" onclick="descargarTodasLasFotos()">⬇️ Descargar todas las fotos</div>
     </div>
@@ -617,30 +614,6 @@ async function generarImagenReserva(){
   } finally {
     btn.textContent = textoOriginal;
   }
-}
-
-async function descargarDatosTransferencia(){
-  const url = './datos_transferencia.jpg';
-  const nombre = 'Datos de Transferencia RAM Motors.jpg';
-  if (navigator.share && navigator.canShare) {
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error('no encontrada');
-      const blob = await resp.blob();
-      const archivo = new File([blob], nombre, { type: blob.type || 'image/jpeg' });
-      if (navigator.canShare({ files: [archivo] })) {
-        await navigator.share({ files: [archivo], title: 'Datos de Transferencia' });
-        return;
-      }
-    } catch (e) {
-      if (e && e.name === 'AbortError') return;
-      alert('No encontré la imagen de datos de transferencia. Avisa que se publique de nuevo el sitio.');
-      return;
-    }
-  }
-  const a4 = document.createElement('a');
-  a4.href = url; a4.download = nombre;
-  document.body.appendChild(a4); a4.click(); document.body.removeChild(a4);
 }
 
 async function descargarImagenMarketing(){
