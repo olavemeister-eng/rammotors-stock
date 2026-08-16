@@ -78,6 +78,7 @@
   .card .badge{position:absolute;top:8px;left:8px;background:rgba(20,20,20,.85);color:#3ddc6f;
     font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;
     border-radius:8px;border:1px solid #3ddc6f;font-family:"Oswald",sans-serif;}
+  .card .badge.reservado{color:#ff9800;border-color:#ff9800;}
   .card .info{padding:8px 10px 0;}
   .card .info h3{margin:0 0 2px;font-size:13px;font-weight:700;letter-spacing:.3px;line-height:1.2;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -385,7 +386,7 @@ function render(){
     <div class="card" onclick="abrirDetalle('${v.id}')">
       <div class="card-foto-wrap">
         ${foto ? `<img src="${foto}" loading="lazy">` : ''}
-        <span class="badge">Disponible</span>
+        <span class="badge${v.reservado ? ' reservado' : ''}">${v.reservado ? 'Reservado' : 'Disponible'}</span>
       </div>
       <div class="info">
         <h3>${v.brand} ${v.model}</h3>
